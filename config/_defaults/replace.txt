@@ -1,0 +1,1 @@
+strings.properties:settings.gradle,settings.gradle.kts,app/src/main/res/values/strings.xml,app/build.gradle,app/build.gradle.kts,app/src/main/AndroidManifest.xml,app/signing.gradle,settings.gradle,app/src/main/java/.+\.java,app/src/main/java/.+\.kt

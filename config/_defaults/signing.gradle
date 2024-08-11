@@ -1,0 +1,6 @@
+ext.signing = [
+    storeFile: file('release.keystore'),
+    storePassword: 'PROJECT_ALIAS-12345',
+    keyAlias: 'PROJECT_ALIAS',
+    keyPassword: 'PROJECT_ALIAS-12345'
+]

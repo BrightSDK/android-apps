@@ -1,0 +1,69 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url = "https://maven.pkg.github.com/vladislavs-luminati/bright-sdk-gradle-plugin"
+            credentials {
+                username = project.findProperty("gpr.user") 
+                    ?: System.getenv("GITHUB_USERNAME")
+                password = project.findProperty("gpr.token")
+                    ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    dependencies {
+        classpath 'com.brightdata:brightsdk-gradle:1.+'
+        classpath 'com.brightdata:apps-generator:1.+'
+    }
+}
+
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+}
+
+apply plugin: com.brightdata.BrightSdkPlugin
+apply plugin: com.brightdata.AppsGeneratorPlugin
+
+brightsdk {
+    // default values kept for reference
+    ext = 'brightsdk'
+    version = 'latest'
+}
+
+appgen {
+    // default values kept for reference
+    ext = 'appgen'
+    sourceDir = 'source'
+    projectsDir = 'projects'
+    configDir = 'config'
+}
+
+task configureBrightSdk() {
+    doLast {
+        project.ext.brightsdk = [
+            projectDir: project.ext.appgen.projectDir + '/app',
+        ]
+    }
+}
+
+parseBrightSdkArgs.dependsOn parseArgs
+updateBrightSdk.dependsOn fetchBrightSdkVersions, configureBrightSdk
+
+def signing = file('signing.gradle')
+if (signing.exists()) {
+    apply from: signing
+    replaceStrings.dependsOn createPass
+    buildProject.dependsOn keygen, replaceStrings, updateBrightSdk
+} else {
+    println "signing.gradle not found, skipping signing"
+    buildProject.dependsOn replaceStrings, updateBrightSdk
+}
