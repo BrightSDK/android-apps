@@ -1,0 +1,64 @@
+/*
+* NOTE: This file should only be modified
+* if you are going to sign your generated apps for release
+* IMPORTANT: config/_defaults/signing.gradle must reflect your changes
+* e.g for
+
+project.ext.appgen.pass = "$alias-12345"
+
+the signing.gradle must have
+
+ext.signing = [
+    ..
+    storePassword: 'PROJECT_ALIAS-12345',
+    keyPassword: 'PROJECT_ALIAS-12345'
+]
+*/
+
+task createPass {
+    doLast {
+        // project.ext.appgen must match appgen.ext in build.gradle
+        def alias = project.ext.appgen.alias
+        // define your own password generation logic using
+        // project.ext.appgen.name, project.ext.appgen.alias, etc.
+        // MUST be in sync with this logic
+        def pass = "$alias-12345"
+        println "params: $pass"
+        project.ext.appgen.pass = pass
+    }
+}
+
+task keygen {
+    doLast {
+        def name = project.ext.appgen.name
+        def alias = project.ext.appgen.alias
+        def pass = project.ext.appgen.pass
+        def keystore = "config/$name/release.keystore"
+        def keystoreFile = file(keystore)
+
+        if (keystoreFile.exists()) {
+            println "keystore file already exists: $keystore"
+            return
+        }
+
+        def dep = 'YourDepartmentName'
+        def org = 'YourCompanyName'
+        def country = 'US' // 2-letter country code, e.g. US, IL, etc.
+
+        // Execute the keytool command
+        exec {
+            commandLine 'keytool', '-genkeypair',
+                '-dname', "cn=$dep, ou=$dep, o=$org, c=$country",
+                '-alias', alias, '-keypass', pass,
+                '-keyalg', 'DSA',
+                '-keystore', "$keystoreFile",
+                '-storepass', pass, '-validity', '20000'
+
+            // Automatically answer 'yes' to any prompts
+            standardInput = new ByteArrayInputStream('y\n'.getBytes())
+        }
+    }
+}
+
+createPass.dependsOn parseArgs
+keygen.dependsOn checkName, createPass
