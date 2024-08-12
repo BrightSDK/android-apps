@@ -2,7 +2,7 @@ buildscript {
     repositories {
         mavenCentral()
         maven {
-            url = "https://maven.pkg.github.com/vladislavs-luminati/bright-sdk-gradle-plugin"
+            url = "https://maven.pkg.github.com/vladislavs-luminati/gradle-plugins"
             credentials {
                 username = project.findProperty("gpr.user") 
                     ?: System.getenv("GITHUB_USERNAME")
@@ -12,8 +12,8 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.brightdata:brightsdk-gradle:1.+'
-        classpath 'com.brightdata:apps-generator:1.+'
+        classpath 'com.brightdata:brightsdkupdater:1.+'
+        classpath 'com.brightdata:appsgenerator:1.+'
     }
 }
 
